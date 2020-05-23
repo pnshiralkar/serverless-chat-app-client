@@ -1,0 +1,34 @@
+.home-paper{
+    min-height: 200px;
+    max-height: 85vh;
+    overflow: hidden;
+}
+
+.chat-top-bar-avatar > * {
+     margin-left: 0 !important;
+}
+
+.rce-container-clist{
+    max-height: 85vh;
+}
+
+.message-list{
+    height: 721px;
+    background: bisque;
+}
+
+.send-msg-container{
+    background: #f2f2f2;
+}
+
+.send-msg-text-input > *{
+    padding: 10px 10px !important;
+    border-radius: 26px !important;
+}
+
+.send-msg-text-input{
+    background: #fff;
+    border-radius: 26px !important;
+    margin: 8px 5px !important;
+    padding: 0 8px;
+}
