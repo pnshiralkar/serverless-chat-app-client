@@ -27,17 +27,27 @@ export default class ChatGrid extends React.Component {
             console.log(e)
         }
         this.socket.onmessage = (e) => {
-            if (JSON.parse(e.data).item && (JSON.parse(e.data).item.from === this.props.currChat || JSON.parse(e.data).item.to === this.props.currChat)) {
-                const msg = JSON.parse(e.data).item
-                let msgs = this.state.msgList
-                msgs.push({
-                    position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
-                    type: 'text',
-                    text: msg.message,
-                    date: Date.parse(msg.createdAt),
-                    data: msg
-                })
-                this.setState({msgList: msgs})
+            if (JSON.parse(e.data).item) {
+                if(JSON.parse(e.data).item.from === this.props.currChat.username || JSON.parse(e.data).item.to === this.props.currChat.username) {
+                    const msg = JSON.parse(e.data).item
+                    let msgs = this.state.msgList
+                    msgs.push({
+                        position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
+                        type: 'text',
+                        text: msg.message,
+                        date: Date.parse(msg.createdAt),
+                        data: msg
+                    })
+                    this.setState({msgList: msgs})
+                    this.props.chatList[this.props.currChat.index].lastMsg = msg
+                    this.props.chatList[this.props.currChat.index].subtitle = msg.message
+                    this.props.chatList[this.props.currChat.index].date = Date.parse(msg.createdAt)
+                    this.props.chatList[this.props.currChat.index].unread = 0
+                    console.log(this.props.chatList)
+                    this.props.setData(this.props.chatList)
+                }else{
+                    this.props.getChats();
+                }
             }
             console.log(e)
         }
@@ -46,7 +56,7 @@ export default class ChatGrid extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const f = async () => {
             if (this.props.currChat !== '' && this.props.currChat !== prevProps.currChat) {
-                const res = await axios.get(baseUrl + `/chats/${this.props.currChat}`, {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
+                const res = await axios.get(baseUrl + `/chats/${this.props.currChat.username}`, {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
                 let msgs = []
                 for (let i in res.data) {
                     const msg = res.data[i];
@@ -72,7 +82,7 @@ export default class ChatGrid extends React.Component {
         this.setState({newMsg: ""})
         this.socket.send(JSON.stringify({
             action: 'sendMsg',
-            to: this.props.currChat,
+            to: this.props.currChat.username,
             msg: this.state.newMsg
         }))
     }
@@ -105,7 +115,7 @@ export default class ChatGrid extends React.Component {
                             }
                             center={
                                 <Typography type={'h6'}>
-                                    {this.props.currChat}
+                                    {this.props.currChat.name}
                                 </Typography>
                             }
                             right={
