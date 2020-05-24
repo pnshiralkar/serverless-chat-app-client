@@ -21,7 +21,7 @@ function App() {
                     }}
                 />
                 <Route path="/">
-                    <Home />
+                    <Home auth={auth}/>
                 </Route>
             </Switch>
         </div>

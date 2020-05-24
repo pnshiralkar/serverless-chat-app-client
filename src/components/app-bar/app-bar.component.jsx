@@ -114,8 +114,8 @@ export default function MenuAppBar(props) {
                             >
                                 <AccountCircle/>
                             </IconButton>
-                            <Typography variant="h7" className={classes.title}>
-                                {props.auth.user.name}
+                            <Typography variant={'h7'} className={classes.title}>
+                                {props.auth.user ? props.auth.user.name : ''}
                             </Typography>
                             <Menu
                                 id="menu-appbar"
