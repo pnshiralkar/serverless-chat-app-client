@@ -9,6 +9,8 @@ import Grid from "@material-ui/core/Grid";
 import ChatGrid from "../chatGrid/chatGrid.component";
 import * as axios from "axios";
 import {baseUrl} from "../../config";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -66,7 +68,12 @@ export default class Home extends React.Component {
                 <Container>
                     <Paper className="home-paper" elevation={4}>
                         <Grid container>
-                            <Grid item xs={4}>
+                            <Grid item xs={4} style={{position: 'relative'}}>
+                                <div style={{position: 'absolute', height: '85vh', width: '100%'}}>
+                                    <Fab color="primary" aria-label="add" style={{float: 'right', bottom: '10px', position: 'absolute', right: '10px'}}>
+                                        <AddIcon />
+                                    </Fab>
+                                </div>
                                 <ChatList classname="chat-list" dataSource={this.state.chatList} onClick={this.handleChatClick}/>
                             </Grid>
                             <Grid item xs={8}>

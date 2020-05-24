@@ -1,5 +1,5 @@
 .home-paper{
-    min-height: 200px;
+    height: 85vh;
     max-height: 85vh;
     overflow: hidden;
 }
@@ -14,7 +14,7 @@
 
 .message-list{
     height: 721px;
-    background: bisque;
+    background: #c0c0c0;
 }
 
 .send-msg-container{

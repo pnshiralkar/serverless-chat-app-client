@@ -26,6 +26,9 @@ export default class ChatGrid extends React.Component {
             console.log('Socket Connected')
             console.log(e)
         }
+        this.socket.onclose = ()=>{
+            this.socket = new WebSocket(`${websocketUrl}?Authorization=Bearer ${props.auth.idToken}`)
+        }
         this.socket.onmessage = (e) => {
             if (JSON.parse(e.data).item) {
                 if(JSON.parse(e.data).item.from === this.props.currChat.username || JSON.parse(e.data).item.to === this.props.currChat.username) {
@@ -54,6 +57,15 @@ export default class ChatGrid extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if(this.props.currChat !== '' && this.props.chatList[this.props.currChat.index].unread>0) {
+            this.props.chatList[this.props.currChat.index].unread = 0
+            this.props.setData(this.props.chatList)
+            this.socket.send(JSON.stringify({
+                action: 'seenMsg',
+                to: this.props.currChat.username
+            }))
+        }
+
         const f = async () => {
             if (this.props.currChat !== '' && this.props.currChat !== prevProps.currChat) {
                 const res = await axios.get(baseUrl + `/chats/${this.props.currChat.username}`, {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
