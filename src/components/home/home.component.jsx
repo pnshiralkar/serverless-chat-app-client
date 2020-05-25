@@ -9,8 +9,7 @@ import Grid from "@material-ui/core/Grid";
 import ChatGrid from "../chatGrid/chatGrid.component";
 import * as axios from "axios";
 import {baseUrl} from "../../config";
-import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
+import NewChatModal from "./newChat";
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -18,9 +17,11 @@ export default class Home extends React.Component {
 
         this.state = {
             chatList: [],
-            currChat: ''
+            currChat: '',
+            sendMsg: null
         }
     }
+
 
     componentDidMount() {
         this.getChats();
@@ -28,24 +29,29 @@ export default class Home extends React.Component {
 
     getChats = async () => {
         if (this.props.auth.is_loggedIn) {
-            const res = await axios.get(baseUrl + '/profile', {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
-            localStorage.setItem('user', JSON.stringify(res.data[0]));
-            let chats = [];
-            if (res.data[0]) {
-                let c = 0;
-                for (let i in res.data[0].chats) {
-                    const chat = res.data[0].chats[i]
-                    chats.push({
-                        title: chat.user.name,
-                        subtitle: chat.lastMsg.message,
-                        date: Date.parse(chat.lastMsg.createdAt),
-                        unread: chat.unreadCount,
-                        data: {username: i, index: c, ...(chat.user)}
-                    })
-                    c += 1;
+            try {
+                const res = await axios.get(baseUrl + '/profile', {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
+                localStorage.setItem('user', JSON.stringify(res.data[0]));
+                let chats = [];
+                if (res.data[0]) {
+                    let c = 0;
+                    for (let i in res.data[0].chats) {
+                        const chat = res.data[0].chats[i]
+                        chats.push({
+                            title: chat.user.name,
+                            subtitle: chat.lastMsg.message,
+                            date: Date.parse(chat.lastMsg.createdAt),
+                            unread: chat.unreadCount,
+                            data: {username: i, index: c, ...(chat.user)}
+                        })
+                        c += 1;
+                    }
+                    this.setState({chatList: chats})
+                    console.log(chats)
                 }
-                this.setState({chatList: chats})
-                console.log(chats)
+            } catch (e) {
+                if (e.response && e.response.status === 403)
+                    this.props.auth.login();
             }
         }
     }
@@ -70,11 +76,9 @@ export default class Home extends React.Component {
                         <Grid container>
                             <Grid item xs={4} style={{position: 'relative'}}>
                                 <div style={{position: 'absolute', height: '85vh', width: '100%'}}>
-                                    <Fab color="primary" aria-label="add" style={{float: 'right', bottom: '10px', position: 'absolute', right: '10px'}}>
-                                        <AddIcon />
-                                    </Fab>
                                 </div>
-                                <ChatList classname="chat-list" dataSource={this.state.chatList} onClick={this.handleChatClick}/>
+                                <ChatList classname="chat-list" dataSource={this.state.chatList}
+                                          onClick={this.handleChatClick}/>
                             </Grid>
                             <Grid item xs={8}>
                                 {<ChatGrid currChat={this.state.currChat} chatList={this.state.chatList}

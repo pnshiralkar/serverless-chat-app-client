@@ -3,12 +3,14 @@ import * as axios from "axios";
 import {baseUrl, websocketUrl} from "../../config";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
-import {Avatar, MessageList, Navbar} from "react-chat-elements";
+import {Avatar, MessageBox, MessageList, Navbar} from "react-chat-elements";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import IconButton from "@material-ui/core/IconButton";
 import SendIcon from "@material-ui/icons/Send";
+import {DropzoneDialogExample} from "./fileUpload.component";
+
 
 export default class ChatGrid extends React.Component {
     constructor(props) {
@@ -22,25 +24,38 @@ export default class ChatGrid extends React.Component {
         this.msgListElement = React.createRef();
 
         this.socket = new WebSocket(`${websocketUrl}?Authorization=Bearer ${props.auth.idToken}`)
-        this.socket.onopen = (e)=>{
+        this.socket.onopen = (e) => {
             console.log('Socket Connected')
             console.log(e)
         }
-        this.socket.onclose = ()=>{
+        this.socket.onclose = () => {
             this.socket = new WebSocket(`${websocketUrl}?Authorization=Bearer ${props.auth.idToken}`)
         }
         this.socket.onmessage = (e) => {
             if (JSON.parse(e.data).item) {
-                if(JSON.parse(e.data).item.from === this.props.currChat.username || JSON.parse(e.data).item.to === this.props.currChat.username) {
+                if (JSON.parse(e.data).item.from === this.props.currChat.username || JSON.parse(e.data).item.to === this.props.currChat.username) {
                     const msg = JSON.parse(e.data).item
                     let msgs = this.state.msgList
-                    msgs.push({
-                        position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
-                        type: 'text',
-                        text: msg.message,
-                        date: Date.parse(msg.createdAt),
-                        data: msg
-                    })
+                    if(msg.type === 'photo'){
+                        msgs.push({
+                            position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
+                            type: 'photo',
+                            text: msg.message,
+                            date: Date.parse(msg.createdAt),
+                            data: {
+                                uri: msg.photoUrl,
+                                ...msg
+                            }
+                        })
+                    }else {
+                        msgs.push({
+                            position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
+                            type: 'text',
+                            text: msg.message,
+                            date: Date.parse(msg.createdAt),
+                            data: msg
+                        })
+                    }
                     this.setState({msgList: msgs})
                     this.props.chatList[this.props.currChat.index].lastMsg = msg
                     this.props.chatList[this.props.currChat.index].subtitle = msg.message
@@ -48,7 +63,7 @@ export default class ChatGrid extends React.Component {
                     this.props.chatList[this.props.currChat.index].unread = 0
                     console.log(this.props.chatList)
                     this.props.setData(this.props.chatList)
-                }else{
+                } else {
                     this.props.getChats();
                 }
             }
@@ -57,7 +72,7 @@ export default class ChatGrid extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.props.currChat !== '' && this.props.chatList[this.props.currChat.index].unread>0) {
+        if (this.props.currChat !== '' && this.props.chatList[this.props.currChat.index].unread > 0) {
             this.props.chatList[this.props.currChat.index].unread = 0
             this.props.setData(this.props.chatList)
             this.socket.send(JSON.stringify({
@@ -72,30 +87,48 @@ export default class ChatGrid extends React.Component {
                 let msgs = []
                 for (let i in res.data) {
                     const msg = res.data[i];
-                    msgs.push({
-                        position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
-                        type: 'text',
-                        text: msg.message,
-                        date: Date.parse(msg.createdAt),
-                        data: msg
-                    })
+                    if(msg.type === 'photo'){
+                        msgs.push({
+                            position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
+                            type: 'photo',
+                            text: msg.message,
+                            date: Date.parse(msg.createdAt),
+                            data: {
+                                uri: msg.photoUrl,
+                                ...msg
+                            }
+                        })
+                    }else {
+                        msgs.push({
+                            position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
+                            type: 'text',
+                            text: msg.message,
+                            date: Date.parse(msg.createdAt),
+                            data: msg
+                        })
+                    }
                 }
                 this.setState({msgList: msgs})
             }
         }
         f();
         const node = this.msgListElement.current
-        if(node)
-            node.setState({ scrollBottom: node.getBottom(node.mlistRef) }, node.checkScroll.bind(node));
+        if (node)
+            node.setState({scrollBottom: node.getBottom(node.mlistRef)}, node.checkScroll.bind(node));
     }
 
-    handleSend = ()=>{
-        console.log(this)
+    handleSend = () => {
+        this.sendMsg('text', this.state.newMsg)
+    }
+
+    sendMsg = (type, msg, path) => {
         this.setState({newMsg: ""})
         this.socket.send(JSON.stringify({
             action: 'sendMsg',
+            type,
             to: this.props.currChat.username,
-            msg: this.state.newMsg
+            msg,
+            path
         }))
     }
 
@@ -103,8 +136,8 @@ export default class ChatGrid extends React.Component {
         this.setState({newMsg: e.target.value})
     }
 
-    keyPress = (e)=>{
-        if(!e.shiftKey && e.key === "Enter") {
+    keyPress = (e) => {
+        if (!e.shiftKey && e.key === "Enter") {
             this.handleSend();
             e.preventDefault()
         }
@@ -131,7 +164,7 @@ export default class ChatGrid extends React.Component {
                                 </Typography>
                             }
                             right={
-                                <div/>
+                                <div />
                             }/>
                     </GridListTile>
                     <GridListTile rows={721} cols={2}>
@@ -145,7 +178,7 @@ export default class ChatGrid extends React.Component {
                     </GridListTile>
                     <GridListTile rows={55} cols={2} className={'send-msg-container'}>
                         <Grid container>
-                            <Grid item xs={11}>
+                            <Grid item xs={10}>
                                 <TextField
                                     id="outlined-full-width"
                                     placeholder="Start typing..."
@@ -169,8 +202,22 @@ export default class ChatGrid extends React.Component {
                                     <SendIcon/>
                                 </IconButton>
                             </Grid>
+                            <Grid item xs={1}>
+                                <DropzoneDialogExample sendMsg={this.sendMsg} {...this.props}/>
+                            </Grid>
                         </Grid>
                     </GridListTile>
+                    <MessageBox
+                        position={'left'}
+                        type={'photo'}
+                        text={'react.svg'}
+                        data={{
+                            uri: 'https://serverless-chat-app-storage-bucket.s3.amazonaws.com/media/chats/74c97fbd-104b-48a6-af87-d245cf6f6168.png',
+                            status: {
+                                click: false,
+                                loading: 0,
+                            }
+                        }}/>
                 </GridList>
             )
         } else {
