@@ -76,6 +76,7 @@ export default class Home extends React.Component {
                         <Grid container>
                             <Grid item xs={4} style={{position: 'relative'}}>
                                 <div style={{position: 'absolute', height: '85vh', width: '100%'}}>
+                                    <NewChatModal auth={this.props.auth} getChats={this.getChats}/>
                                 </div>
                                 <ChatList classname="chat-list" dataSource={this.state.chatList}
                                           onClick={this.handleChatClick}/>
