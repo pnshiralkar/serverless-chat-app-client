@@ -1,6 +1,12 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Client (frontend) React App for [Serverless Chat App](https://github.com/pnshiralkar/serverless-chat-app)
+
+### A chat application client built using React and deployed in serverless environment on AWS.
+#### [Live website available here](https://d3nf7m4z1t4ner.cloudfront.net/)
+<br/>
+<br/>
 
 ## Available Scripts
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 In the project directory, you can run:
 

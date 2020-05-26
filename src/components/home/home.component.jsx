@@ -12,6 +12,7 @@ import {baseUrl} from "../../config";
 import NewChatModal from "./newChat";
 import GridList from "@material-ui/core/GridList";
 import LoadingOverlay from "react-loading-overlay";
+import Welcome from "./welcome.component";
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -102,6 +103,9 @@ export default class Home extends React.Component {
                         </Grid>
                     </Paper>
                     </LoadingOverlay>
+                    }
+                    {!this.props.auth.is_loggedIn &&
+                    <Welcome auth={this.props.auth}/>
                     }
                 </Container>
             </main>
