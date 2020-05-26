@@ -35,7 +35,7 @@ export default function Welcome(props) {
                             Serverless Chat Application
                         </Typography>
                         <Typography variant="h5" align="center" color="textSecondary" paragraph style={{textAlign: 'center'}}>
-                            This is a simple chat app built using Node, and deployed in serverless environment on AWS..<br/><br/>
+                            This is a simple chat app built using Node, and deployed in serverless environment on AWS.<br/><br/>
                             Key features of the app :
                             <li>Secured Authentication using Auth0 and OAuth.</li>
                             <li>Supports sharing of images.</li>
