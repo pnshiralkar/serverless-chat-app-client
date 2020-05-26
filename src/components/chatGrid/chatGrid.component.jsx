@@ -10,6 +10,7 @@ import TextField from "@material-ui/core/TextField";
 import IconButton from "@material-ui/core/IconButton";
 import SendIcon from "@material-ui/icons/Send";
 import {DropzoneDialogExample} from "./fileUpload.component";
+import LoadingOverlay from 'react-loading-overlay';
 
 
 export default class ChatGrid extends React.Component {
@@ -18,7 +19,8 @@ export default class ChatGrid extends React.Component {
 
         this.state = {
             msgList: [],
-            newMsg: ""
+            newMsg: "",
+            loading: false
         }
 
         this.msgListElement = React.createRef();
@@ -36,7 +38,7 @@ export default class ChatGrid extends React.Component {
                 if (JSON.parse(e.data).item.from === this.props.currChat.username || JSON.parse(e.data).item.to === this.props.currChat.username) {
                     const msg = JSON.parse(e.data).item
                     let msgs = this.state.msgList
-                    if(msg.type === 'photo'){
+                    if (msg.type === 'photo') {
                         msgs.push({
                             position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
                             type: 'photo',
@@ -47,7 +49,7 @@ export default class ChatGrid extends React.Component {
                                 ...msg
                             }
                         })
-                    }else {
+                    } else {
                         msgs.push({
                             position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
                             type: 'text',
@@ -83,11 +85,13 @@ export default class ChatGrid extends React.Component {
 
         const f = async () => {
             if (this.props.currChat !== '' && this.props.currChat !== prevProps.currChat) {
+                this.setState({loading: true})
+
                 const res = await axios.get(baseUrl + `/chats/${this.props.currChat.username}`, {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
                 let msgs = []
                 for (let i in res.data) {
                     const msg = res.data[i];
-                    if(msg.type === 'photo'){
+                    if (msg.type === 'photo') {
                         msgs.push({
                             position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
                             type: 'photo',
@@ -98,7 +102,7 @@ export default class ChatGrid extends React.Component {
                                 ...msg
                             }
                         })
-                    }else {
+                    } else {
                         msgs.push({
                             position: (msg.from === this.props.auth.user.username ? 'right' : 'left'),
                             type: 'text',
@@ -109,6 +113,7 @@ export default class ChatGrid extends React.Component {
                     }
                 }
                 this.setState({msgList: msgs})
+                this.setState({loading: false})
             }
         }
         f();
@@ -146,80 +151,76 @@ export default class ChatGrid extends React.Component {
     render() {
         if (this.props.currChat !== '') {
             return (
-                <GridList direction={'column'} cellHeight={1}>
-                    <GridListTile rows={60} cols={2}>
-                        <Navbar
-                            left={
-                                <Avatar
-                                    src={'https://media-exp1.licdn.com/dms/image/C5103AQFmxCmPv31DcQ/profile-displayphoto-shrink_200_200/0?e=1595462400&v=beta&t=IAcP_KB6QMn38M3hv0CVCDOZBGKQVpn5SlicrYal9Ik'}
-                                    alt={'logo'}
-                                    size="large"
-                                    type="circle"
-                                    className={'chat-top-bar-avatar'}
-                                />
-                            }
-                            center={
-                                <Typography type={'h6'}>
-                                    {this.props.currChat.name}
-                                </Typography>
-                            }
-                            right={
-                                <div />
-                            }/>
-                    </GridListTile>
-                    <GridListTile rows={721} cols={2}>
-                        <MessageList
-                            ref={this.msgListElement}
-                            className='message-list'
-                            lockable={true}
-                            toBottomHeight={'100%'}
-                            dataSource={this.state.msgList}
-                            downButton/>
-                    </GridListTile>
-                    <GridListTile rows={55} cols={2} className={'send-msg-container'}>
-                        <Grid container>
-                            <Grid item xs={10}>
-                                <TextField
-                                    id="outlined-full-width"
-                                    placeholder="Start typing..."
-                                    margin="normal"
-                                    fullWidth
-                                    multiline
-                                    rowsMax={6}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    variant="outlined"
-                                    size={'medium'}
-                                    className={'send-msg-text-input'}
-                                    onChange={this.handleNewMsgChange}
-                                    onKeyDown={this.keyPress}
-                                    value={this.state.newMsg}
-                                />
+                <GridList direction={'column'} cellHeight={1} style={{height: '100%'}}>
+                    <LoadingOverlay
+                        active={this.state.loading}
+                        spinner
+                        className="loading"
+                        text='Loading chats...'
+                    >
+                        <GridListTile rows={60} cols={2}>
+                            <Navbar
+                                left={
+                                    <Avatar
+                                        src={'https://ssl.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png'}
+                                        alt={'logo'}
+                                        size="large"
+                                        type="circle"
+                                        className={'chat-top-bar-avatar'}
+                                    />
+                                }
+                                center={
+                                    <Typography type={'h6'}>
+                                        {this.props.currChat.name}
+                                    </Typography>
+                                }
+                                right={
+                                    <div/>
+                                }/>
+                        </GridListTile>
+                        <GridListTile rows={721} cols={2}>
+                            <MessageList
+                                ref={this.msgListElement}
+                                className='message-list'
+                                lockable={true}
+                                toBottomHeight={'100%'}
+                                dataSource={this.state.msgList}
+                                downButton/>
+                        </GridListTile>
+                        <GridListTile rows={55} cols={2} className={'send-msg-container'}>
+                            <Grid container>
+                                <Grid item xs={10}>
+                                    <TextField
+                                        id="outlined-full-width"
+                                        placeholder="Start typing..."
+                                        margin="normal"
+                                        fullWidth
+                                        multiline
+                                        rowsMax={6}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        variant="outlined"
+                                        size={'medium'}
+                                        className={'send-msg-text-input'}
+                                        onChange={this.handleNewMsgChange}
+                                        onKeyDown={this.keyPress}
+                                        value={this.state.newMsg}
+                                    />
+                                </Grid>
+                                <Grid item xs={1}>
+                                    <IconButton style={{marginTop: 2, marginLeft: 5}} onClick={this.handleSend}>
+                                        <SendIcon/>
+                                    </IconButton>
+                                </Grid>
+                                <Grid item xs={1}>
+                                    <DropzoneDialogExample sendMsg={this.sendMsg} {...this.props}/>
+                                </Grid>
                             </Grid>
-                            <Grid item xs={1}>
-                                <IconButton style={{marginTop: 2, marginLeft: 5}} onClick={this.handleSend}>
-                                    <SendIcon/>
-                                </IconButton>
-                            </Grid>
-                            <Grid item xs={1}>
-                                <DropzoneDialogExample sendMsg={this.sendMsg} {...this.props}/>
-                            </Grid>
-                        </Grid>
-                    </GridListTile>
-                    <MessageBox
-                        position={'left'}
-                        type={'photo'}
-                        text={'react.svg'}
-                        data={{
-                            uri: 'https://serverless-chat-app-storage-bucket.s3.amazonaws.com/media/chats/74c97fbd-104b-48a6-af87-d245cf6f6168.png',
-                            status: {
-                                click: false,
-                                loading: 0,
-                            }
-                        }}/>
+                        </GridListTile>
+                    </LoadingOverlay>
                 </GridList>
-            )
+        )
         } else {
             return (<div/>)
         }

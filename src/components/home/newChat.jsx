@@ -11,6 +11,7 @@ import IconButton from "@material-ui/core/IconButton";
 import axios from "axios";
 import Fab from "@material-ui/core/Fab";
 import {baseUrl} from "../../config";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles(theme => ({
     modal: {
@@ -35,6 +36,7 @@ export default function NewChatModal(props) {
     const [open, setOpen] = React.useState(false);
     const [username, setUserName] = React.useState('');
     const [msg, setMsg] = React.useState(0);
+    const [errors, setError] = React.useState();
 
     const handleOpen = () => {
         setOpen(true);
@@ -53,6 +55,7 @@ export default function NewChatModal(props) {
     };
 
     const handleSubmit = async () => {
+        setError('')
         try {
             const res = await axios.post(`${baseUrl}/message`, {
                 to: username,
@@ -62,6 +65,7 @@ export default function NewChatModal(props) {
             setOpen(false)
         } catch (e) {
             console.log(e)
+            setError('Invalid username!')
         }
     };
 
@@ -99,6 +103,7 @@ export default function NewChatModal(props) {
                                 name="username"
                                 onChange={handleUserNameChange}
                             />
+                            <br/>
                             <TextField
                                 variant="outlined"
                                 required
@@ -107,7 +112,10 @@ export default function NewChatModal(props) {
                                 label="Message"
                                 name="message"
                                 onChange={handleMessageChange}
-                            /><br/>
+                            />
+                            <Typography style={{color: 'red'}}>
+                                {errors}
+                            </Typography><br/><br/>
                             <Button variant="contained" style={{width: '50%'}} color="primary" onClick={handleSubmit}>
                                 Send Message
                             </Button>

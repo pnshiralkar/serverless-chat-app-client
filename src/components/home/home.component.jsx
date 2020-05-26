@@ -10,6 +10,8 @@ import ChatGrid from "../chatGrid/chatGrid.component";
 import * as axios from "axios";
 import {baseUrl} from "../../config";
 import NewChatModal from "./newChat";
+import GridList from "@material-ui/core/GridList";
+import LoadingOverlay from "react-loading-overlay";
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -18,7 +20,8 @@ export default class Home extends React.Component {
         this.state = {
             chatList: [],
             currChat: '',
-            sendMsg: null
+            sendMsg: null,
+            loading: false
         }
     }
 
@@ -29,6 +32,7 @@ export default class Home extends React.Component {
 
     getChats = async () => {
         if (this.props.auth.is_loggedIn) {
+            this.setState({loading: true})
             try {
                 const res = await axios.get(baseUrl + '/profile', {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
                 localStorage.setItem('user', JSON.stringify(res.data[0]));
@@ -53,6 +57,9 @@ export default class Home extends React.Component {
                 if (e.response && e.response.status === 403)
                     this.props.auth.login();
             }
+            finally {
+                this.setState({loading: false})
+            }
         }
     }
 
@@ -72,21 +79,30 @@ export default class Home extends React.Component {
                 <div className={classes.appBarSpacer}/>
                 <div className={classes.paperMarginTop}/>
                 <Container>
-                    <Paper className="home-paper" elevation={4}>
-                        <Grid container>
+                    {this.props.auth.is_loggedIn &&
+                    <LoadingOverlay
+                        active={this.state.loading}
+                        spinner
+                        className="loading"
+                        text='Fetching your chats...'
+                    >
+                    <Paper className="home-paper" elevation={4} style={{background: '#fff'}}>
+                        <Grid container style={{height: '100%'}}>
                             <Grid item xs={4} style={{position: 'relative'}}>
                                 <div style={{position: 'absolute', height: '85vh', width: '100%'}}>
-                                    <NewChatModal auth={this.props.auth} getChats={this.getChats}/>
+                                    {!this.state.loading && <NewChatModal auth={this.props.auth} getChats={this.getChats}/>}
                                 </div>
                                 <ChatList classname="chat-list" dataSource={this.state.chatList}
                                           onClick={this.handleChatClick}/>
                             </Grid>
-                            <Grid item xs={8}>
+                            <Grid item xs={8} style={{height: '100%'}}>
                                 {<ChatGrid currChat={this.state.currChat} chatList={this.state.chatList}
-                                           setData={this.setData} getChats={this.getChats} {...this.props}/>}
+                                           setData={this.setData} getChats={this.getChats} {...this.props}  style={{height: '100%'}}/>}
                             </Grid>
                         </Grid>
                     </Paper>
+                    </LoadingOverlay>
+                    }
                 </Container>
             </main>
         </div>)

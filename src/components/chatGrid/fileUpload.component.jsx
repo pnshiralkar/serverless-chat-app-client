@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
 import {DropzoneDialog} from 'material-ui-dropzone'
-import Button from '@material-ui/core/Button';
 import * as axios from "axios";
 import {baseUrl} from "../../config";
-import AttachFileIcon from '@material-ui/icons/AttachFile';
 import IconButton from "@material-ui/core/IconButton";
-
+import ImageIcon from '@material-ui/icons/Image';
 
 export class DropzoneDialogExample extends Component {
     constructor(props) {
@@ -44,7 +42,7 @@ export class DropzoneDialogExample extends Component {
         return (
             <div>
                 <IconButton onClick={this.handleOpen.bind(this)}>
-                    <AttachFileIcon />
+                    <ImageIcon />
                 </IconButton>
                 <DropzoneDialog
                     open={this.state.open}

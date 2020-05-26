@@ -5,6 +5,11 @@ import './App.css';
 import Auth from "./auth";
 import Home from "./components/home/home.component";
 import {makeStyles} from "@material-ui/core/styles";
+import CreateProfile from "./components/profile/createprofile.component";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
     appBarSpacer: theme.mixins.toolbar,
@@ -26,9 +31,12 @@ function App() {
                     path="/callback"
                     render={props => {
                         auth.handleAuthentication(props)
-                        return <div/>
+                        return <AuthCallback classes={classes}/>
                     }}
                 />
+                <Route path={'/createProfile'}>
+                    <CreateProfile auth={auth} history={history}/>
+                </Route>
                 <Route path="/">
                     <Home auth={auth} classes={classes}/>
                 </Route>
@@ -38,3 +46,28 @@ function App() {
 }
 
 export default withRouter(App);
+
+
+class AuthCallback extends React.Component{
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div>
+                <CssBaseline/>
+                <main>
+                    <div className={this.props.classes.appBarSpacer}/>
+                    <div className={this.props.classes.paperMarginTop}/>
+                    <Container className={'logging-in-wrapper'}>
+                        <Typography variant={'h2'} style={{textAlign: 'center', marginBottom: '3vh'}}>
+                            Logging In
+                        </Typography>
+                        <CircularProgress color="#d0d0d0"/>
+                    </Container>
+                </main>
+            </div>
+        )
+    }
+}
