@@ -28,7 +28,7 @@ export class DropzoneDialogExample extends Component {
         console.log(files)
         const url = await axios.get(baseUrl + `/media_upload_url/${files[0].name}`, {headers: {'Authorization': 'Bearer ' + this.props.auth.idToken}})
         await axios.put(url.data.url, files[0])
-        this.props.sendMsg('photo', 'Photo', url.data.path)
+        this.props.sendMsg('photo', '', url.data.path)
         this.setState({open: false})
     }
 
