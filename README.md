@@ -1,4 +1,4 @@
-# Client (frontend) React App for [Serverless Chat App](https://github.com/pnshiralkar/serverless-chat-app)
+# Client App for [Serverless Chat App](https://github.com/pnshiralkar/serverless-chat-app)
 
 ### A chat application client built using React and deployed in serverless environment on AWS.
 #### [Live website available here](https://d3nf7m4z1t4ner.cloudfront.net/)
